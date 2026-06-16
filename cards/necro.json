@@ -1,0 +1,12 @@
+[
+  {
+    "id":"necro_001",
+    "name":"墓守従者ノル",
+    "faction":"Necro",
+    "race":"アンデッド",
+    "cost":0,
+    "atk":3,
+    "hp":2,
+    "effect":"mill_1"
+  }
+]

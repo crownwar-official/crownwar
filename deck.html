@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>CROWNWar デッキ構築</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>デッキ構築</h1>
+    <a href="index.html">TOPへ戻る</a>
+  </header>
+
+  <main class="page">
+    <section class="builder">
+      <div>
+        <h2>王を選択</h2>
+        <div id="kingList" class="card-grid"></div>
+
+        <h2>カード一覧</h2>
+        <div id="deckCardList" class="card-grid"></div>
+      </div>
+
+      <aside class="deck-box">
+        <h2>デッキ</h2>
+        <p id="selectedKing">王：未選択</p>
+        <p id="deckCount">0 / 60</p>
+        <div id="deckList"></div>
+      </aside>
+    </section>
+  </main>
+
+
+  <script src="js/deck.js"></script>
+</body>
+</html>

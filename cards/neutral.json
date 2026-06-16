@@ -1,0 +1,37 @@
+[
+  {
+    "id":"neutral_sr_001",
+    "name":"世界の揺り籠",
+    "faction":"Neutral",
+    "race":"中立",
+    "rarity":"SR",
+    "type":"spell",
+    "cost":10,
+    "effects":[
+      {
+        "action":{
+          "type":"draw",
+          "value":3
+        }
+      },
+      {
+        "condition":{
+          "type":"mobilize",
+          "value":5
+        },
+        "actions":[
+          {
+            "type":"returnAllAlliedUnitsToDeck"
+          },
+          {
+            "type":"healKingByReturnedCount"
+          },
+          {
+            "type":"summonUnitFromHand",
+            "count":1
+          }
+        ]
+      }
+    ]
+  }
+]

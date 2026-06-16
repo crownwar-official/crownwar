@@ -1,0 +1,49 @@
+[
+  {
+    "id":"king_royal_001",
+    "name":"国王アルカイア",
+    "faction":"Royal",
+    "race":"ロイヤル・旗",
+    "rarity":"王",
+    "hp":40,
+
+    "allowedRaces":[
+      "ロイヤル",
+      "ロイヤル・旗",
+      "中立"
+    ],
+
+    "effects":[
+      {
+        "trigger":"onAllySupport",
+        "action":{
+          "type":"healKing",
+          "value":1
+        }
+      },
+      {
+        "trigger":"kingAura",
+        "action":{
+          "type":"enableSoldierTokenRule"
+        }
+      }
+    ],
+
+    "royalCommand":{
+      "name":"勅命",
+      "cost":5,
+      "actions":[
+        {
+          "type":"untap",
+          "target":"allyUnit",
+          "count":1
+        },
+        {
+          "type":"createToken",
+          "token":"soldier",
+          "count":1
+        }
+      ]
+    }
+  }
+]

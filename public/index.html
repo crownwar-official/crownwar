@@ -1,0 +1,483 @@
+from pathlib import Path
+
+html = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CROWNWar</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 20px;
+  font-family: Arial, "Yu Gothic", "Meiryo", sans-serif;
+  background: #f3f3f3;
+  color: #111;
+}
+
+button {
+  padding: 10px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 4px;
+}
+
+#layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+#cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+}
+
+.card {
+  position: relative;
+  width: 200px;
+  min-height: 155px;
+  padding: 10px;
+  border: 2px solid #111;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.card:hover {
+  transform: scale(1.04);
+}
+
+.card-cost {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.card-name {
+  margin: 8px 22px 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-rarity {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-weight: bold;
+}
+
+#deckBox {
+  position: sticky;
+  top: 20px;
+  min-height: 220px;
+  padding: 12px;
+  border: 2px solid #111;
+  border-radius: 10px;
+  background: white;
+}
+
+#deckHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.deck-row {
+  padding: 6px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+#status {
+  margin: 12px 0;
+  min-height: 1.4em;
+}
+
+@media (max-width: 760px) {
+  #layout { grid-template-columns: 1fr; }
+  #deckBox { position: static; }
+  .card { width: calc(50% - 6px); min-width: 155px; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>CROWNWar</h1>
+
+<div id="kingButtons"></div>
+
+<div id="status">王を選択してください。</div>
+
+<hr>
+
+<div id="layout">
+  <div id="cards"></div>
+
+  <div id="deckBox">
+    <div id="deckHeader">
+      <span>デッキ</span>
+      <span id="deckCount">0 / 60</span>
+    </div>
+
+    <button id="saveDeckButton" type="button">デッキ保存</button>
+    <button id="battleButton" type="button">対戦へ</button>
+
+    <div id="deckList">カードをクリックすると追加されます。</div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const deck = [];
+let selectedKing = null;
+let playerNumber = null;
+
+socket.on("playerNumber", function(number) {
+  playerNumber = number;
+});
+
+loadSavedDeck();
+loadKings();
+
+async function loadKings() {
+  const response = await fetch("/api/kings");
+  const kings = await response.json();
+  const area = document.getElementById("kingButtons");
+
+  area.innerHTML = "";
+
+  for (const king of kings) {
+    const button = document.createElement("button");
+    button.textContent = king.name;
+
+    button.addEventListener("click", function() {
+      if (selectedKing && selectedKing.id !== king.id && deck.length > 0) {
+        const ok = confirm("王を変更すると現在のデッキを空にします。");
+        if (!ok) return;
+
+        deck.length = 0;
+        renderDeck();
+      }
+
+      selectedKing = king;
+      loadCards(king);
+    });
+
+    area.appendChild(button);
+  }
+
+  if (selectedKing) {
+    loadCards(selectedKing);
+  }
+}
+
+function loadSavedDeck() {
+  const savedDeck = localStorage.getItem("crownwarDeck");
+
+  if (!savedDeck) return;
+
+  try {
+    const savedData = JSON.parse(savedDeck);
+
+    if (
+      savedData &&
+      !Array.isArray(savedData) &&
+      Array.isArray(savedData.cards)
+    ) {
+      selectedKing = savedData.king || null;
+      deck.push(...savedData.cards);
+      renderDeck();
+    } else {
+      localStorage.removeItem("crownwarDeck");
+    }
+  } catch (error) {
+    localStorage.removeItem("crownwarDeck");
+  }
+}
+
+async function loadCards(king) {
+  const cardsArea = document.getElementById("cards");
+  const status = document.getElementById("status");
+
+  cardsArea.innerHTML = "";
+  status.textContent = king.name + "のカードを読み込み中...";
+
+  try {
+    const response = await fetch("/api/cards");
+
+    if (!response.ok) {
+      throw new Error("カードデータを取得できませんでした。");
+    }
+
+    const allCards = await response.json();
+
+    const cards = allCards.filter(function(card) {
+      return king.allowedRaces.includes(card.race);
+    });
+
+    for (const card of cards) {
+      const cardElement = document.createElement("div");
+      cardElement.className = "card";
+
+      let stats = "";
+
+      if (card.type === "unit") {
+        stats = "攻撃/体力：" + card.atk + "/" + card.hp + "<br>";
+      }
+
+      cardElement.innerHTML =
+        '<div class="card-cost">' +
+        card.cost +
+        "</div>" +
+        '<div class="card-name">' +
+        escapeHtml(card.name) +
+        "</div>" +
+        '<div class="card-rarity">' +
+        escapeHtml(card.rarity) +
+        "</div>" +
+        "種族：" +
+        escapeHtml(card.race) +
+        "<br>" +
+        "コスト：" +
+        card.cost +
+        "<br>" +
+        stats +
+        "種類：" +
+        escapeHtml(card.type);
+
+      cardElement.addEventListener("click", function() {
+        addToDeck(card);
+      });
+
+      cardsArea.appendChild(cardElement);
+    }
+
+    status.textContent =
+      king.name + "：使用可能カード " + cards.length + "枚";
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+function addToDeck(card) {
+  if (deck.length >= 60) {
+    alert("デッキは60枚までです。");
+    return;
+  }
+
+  const sameCardCount = deck.filter(function(deckCard) {
+    return deckCard.id === card.id;
+  }).length;
+
+  const sameCardLimit = card.rarity === "SR" ? 3 : 6;
+
+  if (sameCardCount >= sameCardLimit) {
+    alert(card.name + "は" + sameCardLimit + "枚までです。");
+    return;
+  }
+
+  deck.push(card);
+  renderDeck();
+}
+
+function removeFromDeck(name) {
+  const index = deck.findIndex(function(card) {
+    return card.name === name;
+  });
+
+  if (index !== -1) {
+    deck.splice(index, 1);
+    renderDeck();
+  }
+}
+
+function renderDeck() {
+  const deckList = document.getElementById("deckList");
+  const deckCount = document.getElementById("deckCount");
+
+  deckCount.textContent = deck.length + " / 60";
+
+  if (deck.length === 0) {
+    deckList.textContent = "カードをクリックすると追加されます。";
+    return;
+  }
+
+  const counts = {};
+
+  for (const card of deck) {
+    counts[card.name] = (counts[card.name] || 0) + 1;
+  }
+
+  deckList.innerHTML = "";
+
+  for (const name in counts) {
+    const row = document.createElement("div");
+    row.className = "deck-row";
+    row.textContent = name + " ×" + counts[name];
+    row.style.cursor = "pointer";
+
+    row.addEventListener("click", function() {
+      removeFromDeck(name);
+    });
+
+    deckList.appendChild(row);
+  }
+}
+
+document
+  .getElementById("saveDeckButton")
+  .addEventListener("click", function() {
+    if (!selectedKing) {
+      alert("王を選んでください。");
+      return;
+    }
+
+    if (deck.length !== 60) {
+      alert("デッキを60枚にしてください。現在：" + deck.length + "枚");
+      return;
+    }
+
+    localStorage.setItem(
+      "crownwarDeck",
+      JSON.stringify({
+        king: selectedKing,
+        cards: deck
+      })
+    );
+
+    alert("デッキを保存しました。");
+  });
+
+document
+  .getElementById("battleButton")
+  .addEventListener("click", function() {
+    if (!selectedKing) {
+      alert("王を選んでください。");
+      return;
+    }
+
+    if (deck.length !== 60) {
+      alert("デッキを60枚にしてください。現在：" + deck.length + "枚");
+      return;
+    }
+
+    showRoomScreen();
+  });
+
+function showRoomScreen() {
+  document.body.innerHTML = `
+    <h1>CROWNWar 対戦</h1>
+
+    <p>王：${selectedKing.name}</p>
+    <p>デッキ：${deck.length}枚</p>
+
+    <input id="roomName" type="text" placeholder="ルーム名">
+
+    <button id="joinRoomButton" type="button">
+      ルームに参加
+    </button>
+
+    <p id="roomStatus">
+      ルーム名を入力してください。
+    </p>
+  `;
+
+  document
+    .getElementById("joinRoomButton")
+    .addEventListener("click", function() {
+      const roomName =
+        document.getElementById("roomName").value.trim();
+
+      if (!roomName) {
+        document.getElementById("roomStatus").textContent =
+          "ルーム名を入力してください。";
+        return;
+      }
+
+      socket.emit("joinRoom", roomName);
+
+      document.getElementById("roomStatus").textContent =
+        roomName + " に参加中...";
+    });
+}
+
+socket.on("roomError", function(message) {
+  const status = document.getElementById("roomStatus");
+  if (status) status.textContent = message;
+});
+
+socket.on("roomInfo", function(data) {
+  const status = document.getElementById("roomStatus");
+  if (status) {
+    status.textContent =
+      data.roomName + "：参加者 " + data.playerCount + " / 2";
+  }
+});
+
+socket.on("startBattle", function(data) {
+  const hand = makeStartingHand(deck, data.startingHand);
+
+  document.body.innerHTML = `
+    <h1>対戦開始</h1>
+
+    <div style="border:2px solid black;padding:10px;margin:10px 0;">
+      <h2>${selectedKing.name}</h2>
+      <p>HP：${selectedKing.hp}</p>
+    </div>
+
+    <p>
+      ${playerNumber === data.firstPlayer
+        ? "あなたは先攻"
+        : "あなたは後攻"}
+    </p>
+
+    <h3>手札 ${hand.length}枚</h3>
+
+    <div id="handArea">
+      ${hand.map(function(card) {
+        return "<div>" + escapeHtml(card.name) + "</div>";
+      }).join("")}
+    </div>
+  `;
+});
+
+function makeStartingHand(sourceDeck, count) {
+  const shuffledDeck = [...sourceDeck];
+
+  for (let i = shuffledDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = shuffledDeck[i];
+    shuffledDeck[i] = shuffledDeck[j];
+    shuffledDeck[j] = temp;
+  }
+
+  return shuffledDeck.slice(0, count);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+</script>
+
+</body>
+</html>
+"""
+
+path = Path("/mnt/data/index_fixed.html")
+path.write_text(html, encoding="utf-8")
+print(path)

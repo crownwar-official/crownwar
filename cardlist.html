@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>CROWNWar 公式カードリスト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="page-header">
+    <h1>公式カードリスト</h1>
+    <a href="index.html">TOPへ戻る</a>
+  </header>
+
+  <p id="cardCount">0枚</p>
+
+  <input
+    type="text"
+    id="cardSearch"
+    placeholder="カード名検索..."
+    oninput="searchCards()"
+  >
+<button class="filter-toggle" onclick="toggleFilters()">絞り込み ▼</button>
+
+<div id="filterArea" style="display:none;">
+
+
+  <h3>勢力</h3>
+<div class="filters">
+  <button onclick="filterCards('all'); setActiveButton(this)">全部</button>
+  <button onclick="filterCards('Royal'); setActiveButton(this)">ロイヤル</button>
+  <button onclick="filterCards('Flag'); setActiveButton(this)">ロイヤル・旗</button>
+  <button onclick="filterCards('Necro'); setActiveButton(this)">ネクロ</button>
+  <button onclick="filterCards('Mei'); setActiveButton(this)">ネクロ・冥</button>
+  <button onclick="filterCards('Neutral'); setActiveButton(this)">ニュートラル</button>
+</div>
+
+<h3>カードタイプ</h3>
+<div class="filters">
+  <button onclick="filterType('all'); setActiveButton(this)">全部</button>
+  <button onclick="filterType('Unit'); setActiveButton(this)">ユニット</button>
+  <button onclick="filterType('Spell'); setActiveButton(this)">呪文</button>
+  <button onclick="filterType('Weapon'); setActiveButton(this)">武器</button>
+</div>
+
+<h3>レア度</h3>
+<div class="filters">
+  <button onclick="filterRarity('all'); setActiveButton(this)">全部</button>
+  <button onclick="filterRarity('King'); setActiveButton(this)">王</button>
+  <button onclick="filterRarity('SR'); setActiveButton(this)">SR</button>
+  <button onclick="filterRarity('VR'); setActiveButton(this)">VR</button>
+  <button onclick="filterRarity('R'); setActiveButton(this)">R</button>
+  <button onclick="filterRarity('U'); setActiveButton(this)">U</button>
+  <button onclick="filterRarity('C'); setActiveButton(this)">C</button>
+</div>
+
+<h3>コスト</h3>
+<div class="filters">
+  <button onclick="filterCost('all'); setActiveButton(this)">全部</button>
+  <button onclick="filterCost(2); setActiveButton(this)">2</button>
+  <button onclick="filterCost(3); setActiveButton(this)">3</button>
+  <button onclick="filterCost(4); setActiveButton(this)">4</button>
+  <button onclick="filterCost(5); setActiveButton(this)">5</button>
+  <button onclick="filterCost(6); setActiveButton(this)">6</button>
+  <button onclick="filterCost(7); setActiveButton(this)">7</button>
+  <button onclick="filterCost(8); setActiveButton(this)">8</button>
+  <button onclick="filterCost(9); setActiveButton(this)">9</button>
+  <button onclick="filterCost(10); setActiveButton(this)">10</button>
+</div>
+
+</div>
+
+</div>
+
+  <section id="cardList" class="card-grid"></section>
+
+  <div id="cardPopup" class="popup" style="display:none;">
+    <div class="popup-card">
+      <span onclick="closeCard()" class="close">✕</span>
+      <h2 id="popupName"></h2>
+      <p id="popupInfo"></p>
+      <p id="popupStats"></p>
+      <p id="popupText"></p>
+    </div>
+  </div>
+
+  <script src="js/cardlist.js"></script>
+</body>
+</html>
