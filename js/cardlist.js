@@ -64,9 +64,11 @@ function renderCards(list) {
         ${
   card.type === "King"
     ? `<p>HP：${card.hp}</p>`
-    : `<p>コスト：${card.cost ?? "-"}　攻撃：${card.atk ?? "-"}　HP：${card.hp ?? "-"}</p>`
+    : card.type === "Unit"
+    ? `<p>コスト：${card.cost}　攻撃：${card.atk}　HP：${card.hp}</p>`
+    : `<p>コスト：${card.cost}</p>`
 }
-        <p>${card.text.replace(/\n/g, "<br>")}</p>
+        <p>${(card.text || "").replace(/\n/g, "<br>")}</p>
       `;
 
       div.onclick = () => {
@@ -105,6 +107,8 @@ function applyFilters() {
       return true;
     })
   );
+
+  updateActiveButtons();
 }
 
 function filterCards(faction) {
@@ -157,10 +161,12 @@ function showCard(card) {
   document.getElementById("popupStats").textContent =
     card.type === "King"
   ? `HP:${card.hp}`
-  : `コスト:${card.cost ?? "-"} 攻撃:${card.atk ?? "-"} HP:${card.hp ?? "-"}`;
+  : card.type === "Unit"
+  ? `コスト:${card.cost} 攻撃:${card.atk} HP:${card.hp}`
+  : `コスト:${card.cost}`;
 
   document.getElementById("popupText").innerHTML =
-  card.text.replace(/\n/g, "<br>");
+  (card.text || "").replace(/\n/g, "<br>");
 
   document.getElementById("cardPopup").style.display = "flex";
 }
@@ -179,12 +185,23 @@ function toggleFilters() {
   }
 }
 
-function setActiveButton(button) {
-  const parent = button.parentElement;
+function updateActiveButtons() {
+  document
+    .querySelectorAll(".filters button")
+    .forEach(button => button.classList.remove("active"));
 
-  parent
-    .querySelectorAll("button")
-    .forEach(btn => btn.classList.remove("active"));
+  const activeButtons = [
+    `faction-${currentFaction}`,
+    `type-${currentType}`,
+    `rarity-${currentRarity}`,
+    `cost-${currentCost}`
+  ];
 
-  button.classList.add("active");
+  activeButtons.forEach(key => {
+    const button = document.querySelector(`[data-filter="${key}"]`);
+
+    if (button) {
+      button.classList.add("active");
+    }
+  });
 }

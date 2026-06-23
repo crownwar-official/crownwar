@@ -1,37 +1,138 @@
 [
   {
-    "id":"neutral_sr_001",
-    "name":"世界の揺り籠",
-    "faction":"Neutral",
-    "race":"中立",
-    "rarity":"SR",
-    "type":"spell",
-    "cost":10,
-    "effects":[
-      {
-        "action":{
-          "type":"draw",
-          "value":3
-        }
-      },
-      {
-        "condition":{
-          "type":"mobilize",
-          "value":5
-        },
-        "actions":[
-          {
-            "type":"returnAllAlliedUnitsToDeck"
-          },
-          {
-            "type":"healKingByReturnedCount"
-          },
-          {
-            "type":"summonUnitFromHand",
-            "count":1
-          }
-        ]
-      }
-    ]
-  }
+    "id": "neutral-sr-001",
+    "name": "世界の揺り籠",
+    "search": "せかいのゆりかご",
+    "set": 1,
+    "faction": "Neutral",
+    "subFaction": "None",
+    "race": "中立",
+    "rarity": "SR",
+    "type": "Spell",
+    "cost": 10,
+    "text": "カードを3枚引く。動員5：味方ユニットを全て山札に戻してシャッフルする。その後、戻した枚数分王を回復し、手札からユニット1体を場に出す。"
+  },
+  {
+  "id": "neutral-vr-001",
+  "name": "放浪の商人ティミ",
+  "search": "ほうろうのしょうにんてぃみ",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "VR",
+  "type": "Unit",
+  "cost": 4,
+  "atk": 0,
+  "hp": 6,
+  "text": "登場時：カードを2枚引く。\n\n応援：カードを1枚引く。\n\n破壊時：カードを2枚引く。\n\nターン終了時：手札が7枚以下ならカードを1枚引く。"
+},
+{
+  "id": "neutral-vr-002",
+  "name": "流れ星",
+  "search": "ながれぼし",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "VR",
+  "type": "Spell",
+  "cost": 10,
+  "text": "このターン、自分が引いたカード1枚につき、このカードのコストを1下げる。\n\n次の効果を手札の枚数分行う。\n\n相手ユニット1体を選ぶ。そのユニットの体力を-1する。"
+},
+{
+  "id": "neutral-r-001",
+  "name": "輪廻の書",
+  "search": "りんねのしょ",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "R",
+  "type": "Spell",
+  "cost": 4,
+  "text": "墓地のカードを全て山札に戻す。\n\nカードを1枚引く。"
+},
+{
+  "id": "neutral-u-001",
+  "name": "威圧",
+  "search": "いあつ",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "U",
+  "type": "Spell",
+  "cost": 0,
+  "text": "相手ユニット1体はこのターン-1/-1。"
+},
+{
+  "id": "neutral-u-002",
+  "name": "旅人の地図",
+  "search": "たびびとのちず",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "U",
+  "type": "Spell",
+  "cost": 2,
+  "text": "山札の一番上を公開する。\n\nそれがユニットなら場に出す。\n\nそうでないなら墓地に置く。"
+},
+{
+  "id": "neutral-u-003",
+  "name": "旅の護符",
+  "search": "たびのごふ",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "U",
+  "type": "Spell",
+  "cost": 2,
+  "text": "味方ユニット1体を回復する。\n\nカードを1枚引く。"
+},
+{
+  "id": "neutral-c-001",
+  "name": "紅爪の狂兵",
+  "search": "こうそうのきょうへい",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "C",
+  "type": "Unit",
+  "cost": 1,
+  "atk": 1,
+  "hp": 1,
+  "text": "効果なし。"
+},
+{
+  "id": "neutral-c-002",
+  "name": "野営の料理人マルコ",
+  "search": "やえいのりょうりにんまるこ",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "C",
+  "type": "Unit",
+  "cost": 2,
+  "atk": 1,
+  "hp": 4,
+  "text": "登場時：王の体力+2。"
+},
+{
+  "id": "neutral-c-003",
+  "name": "遺失物",
+  "search": "いしつぶつ",
+  "set": 1,
+  "faction": "Neutral",
+  "subFaction": "None",
+  "race": "中立",
+  "rarity": "C",
+  "type": "Spell",
+  "cost": 1,
+  "text": "カードを1枚引く。"
+}
 ]
