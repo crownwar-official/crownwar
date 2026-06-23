@@ -41,33 +41,73 @@ function getTypeName(card) {
   return card.type;
 }
 
+
+
+others.forEach(card => {
+  const div = document.createElement("div");
+  div.className = "card";
+
+  div.innerHTML = `
+    <h3>${card.name}</h3>
+    <p>${getFactionName(card)} / ${getTypeName(card)}</p>
+    ${
+      card.type === "Unit"
+        ? `<p>コスト：${card.cost}　攻撃：${card.atk}　HP：${card.hp}</p>`
+        : `<p>コスト：${card.cost}</p>`
+    }
+    <p>${(card.text || "").replace(/\n/g, "<br>")}</p>
+  `;
+
+  div.onclick = () => showCard(card);
+
+  cardList.appendChild(div);
+});
+
 function renderCards(list) {
   cardList.innerHTML = "";
 
   document.getElementById("cardCount").textContent =
     `${list.length}枚`;
 
-  list
-    .slice()
-    .sort((a, b) => {
-      if (a.type === "King") return -1;
-      if (b.type === "King") return 1;
-      return Number(a.cost || 0) - Number(b.cost || 0);
-    })
-    .forEach(card => {
+  const kings = list.filter(card => card.type === "King");
+
+  const others = list
+    .filter(card => card.type !== "King")
+    .sort((a, b) => Number(a.cost || 0) - Number(b.cost || 0));
+
+  if (kings.length > 0) {
+    const kingTitle = document.createElement("h2");
+    kingTitle.textContent = "▶ 王を表示";
+    kingTitle.className = "section-title";
+    kingTitle.style.cursor = "pointer";
+    cardList.appendChild(kingTitle);
+
+    const kingContainer = document.createElement("div");
+    kingContainer.className = "king-container";
+    kingContainer.style.display = "none";
+    cardList.appendChild(kingContainer);
+
+    kingTitle.onclick = () => {
+      if (kingContainer.style.display === "none") {
+        kingContainer.style.display = "contents";
+        kingTitle.textContent = "▼ 王を表示";
+      } else {
+        kingContainer.style.display = "none";
+        kingTitle.textContent = "▶ 王を表示";
+      }
+    };
+
+    kings.forEach(card => {
       const div = document.createElement("div");
-      div.className = "card";
+      div.className = `card king-card rarity-${card.rarity}`;
 
       div.innerHTML = `
-        <h3>${card.name}</h3>
-        <p>${getFactionName(card)} / ${getTypeName(card)}</p>
-        ${
-  card.type === "King"
-    ? `<p>HP：${card.hp}</p>`
-    : card.type === "Unit"
-    ? `<p>コスト：${card.cost}　攻撃：${card.atk}　HP：${card.hp}</p>`
-    : `<p>コスト：${card.cost}</p>`
-}
+       <h3>
+  ${card.name}
+  <span class="rarity-tag">${card.rarity}</span>
+</h3>
+        <p>${getFactionName(card)} / 王</p>
+        <p>HP：${card.hp}</p>
         <p>${(card.text || "").replace(/\n/g, "<br>")}</p>
       `;
 
@@ -75,8 +115,39 @@ function renderCards(list) {
         showCard(card);
       };
 
-      cardList.appendChild(div);
+      kingContainer.appendChild(div);
     });
+  }
+
+  const cardTitle = document.createElement("h2");
+  cardTitle.textContent = "カード";
+  cardTitle.className = "section-title";
+  cardList.appendChild(cardTitle);
+
+  others.forEach(card => {
+    const div = document.createElement("div");
+    div.className = `card rarity-${card.rarity}`;
+
+    div.innerHTML = `
+      <h3>
+  ${card.name}
+  <span class="rarity-tag">${card.rarity}</span>
+</h3>
+      <p>${getFactionName(card)} / ${getTypeName(card)}</p>
+      ${
+        card.type === "Unit"
+          ? `<p>コスト：${card.cost}　攻撃：${card.atk}　HP：${card.hp}</p>`
+          : `<p>コスト：${card.cost}</p>`
+      }
+      <p>${(card.text || "").replace(/\n/g, "<br>")}</p>
+    `;
+
+    div.onclick = () => {
+      showCard(card);
+    };
+
+    cardList.appendChild(div);
+  });
 }
 
 function applyFilters() {

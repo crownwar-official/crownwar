@@ -102,6 +102,9 @@ h1 {
   border: 1px solid #d6a84f;
   border-radius: 14px;
   background: rgba(0,0,0,0.45);
+
+  height: 220px;
+  overflow: hidden;
 }
 
 .card h3 {
@@ -309,4 +312,126 @@ h1 {
 
   color:#ffd36a;
   text-align:center;
+}
+
+.king-card{
+  height: 360px;
+}
+
+.section-title{
+  grid-column: 1 / -1;
+
+  color: #ffd36a;
+
+  margin-top: 20px;
+  margin-bottom: 10px;
+
+  padding-bottom: 8px;
+
+  border-bottom: 2px solid #d6a84f;
+}
+
+.section-title{
+  grid-column: 1 / -1;
+  color: #ffd36a;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #d6a84f;
+}
+
+.king-container{
+  display: contents;
+}
+
+.king-card{
+  height: 360px;
+}
+
+.rarity-King{
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 12px #ffd700;
+}
+
+.rarity-SR{
+  border: 2px solid #ff4fd8;
+  box-shadow: 0 0 10px #ff4fd8;
+}
+
+.rarity-VR{
+  border: 2px solid #9b5cff;
+  box-shadow: 0 0 10px #9b5cff;
+}
+
+.rarity-R{
+  border: 2px solid #4da6ff;
+  box-shadow: 0 0 8px #4da6ff;
+}
+
+.rarity-U{
+  border: 2px solid #4dff88;
+  box-shadow: 0 0 8px #4dff88;
+}
+
+.rarity-C{
+  border: 2px solid #bfbfbf;
+  box-shadow: 0 0 6px #bfbfbf;
+}
+
+.rarity-tag{
+  float:right;
+
+  font-size:12px;
+  padding:2px 8px;
+
+  border-radius:999px;
+
+  background:#333;
+}
+
+.rarity-King .rarity-tag{
+  background:#ffd700;
+  color:black;
+}
+
+.rarity-SR .rarity-tag{
+  background:#ff4fd8;
+  color:white;
+}
+
+.rarity-VR .rarity-tag{
+  background:#9b5cff;
+  color:white;
+}
+
+.rarity-R .rarity-tag{
+  background:#4da6ff;
+  color:white;
+}
+
+.rarity-U .rarity-tag{
+  background:#4dff88;
+  color:black;
+}
+
+.rarity-C .rarity-tag{
+  background:#bfbfbf;
+  color:black;
+}
+
+.card h3{
+  margin:0 0 8px;
+  padding-bottom:6px;
+
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+
+.card p:last-child{
+  margin-top:8px;
+  padding-top:8px;
+
+  border-top:1px solid rgba(255,255,255,.15);
+
+  font-size:13px;
+  line-height:1.5;
 }
