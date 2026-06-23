@@ -7,12 +7,22 @@ let currentType = "all";
 let currentRarity = "all";
 let currentCost = "all";
 
-fetch("cards/royal.json")
-  .then(res => res.json())
-  .then(data => {
-    cards = data;
-    applyFilters();
-  });
+Promise.all([
+  fetch("cards/kings.json").then(res => res.json()),
+  fetch("cards/royal.json").then(res => res.json()),
+  fetch("cards/necro.json").then(res => res.json()),
+  fetch("cards/neutral.json").then(res => res.json())
+])
+.then(([kings, royal, necro, neutral]) => {
+  cards = [
+    ...kings,
+    ...royal,
+    ...necro,
+    ...neutral
+  ];
+
+  applyFilters();
+});
 
 function getFactionName(card) {
   if (card.faction === "Royal" && card.subFaction === "Flag") return "ロイヤル・旗";
@@ -50,9 +60,13 @@ function renderCards(list) {
 
       div.innerHTML = `
         <h3>${card.name}</h3>
-        <p>${getFactionName(card)} / ${card.rarity} / ${getTypeName(card)}</p>
-        <p>コスト：${card.cost ?? "-"}　攻撃：${card.atk ?? "-"}　HP：${card.hp ?? "-"}</p>
-        <p>${card.text}</p>
+        <p>${getFactionName(card)} / ${getTypeName(card)}</p>
+        ${
+  card.type === "King"
+    ? `<p>HP：${card.hp}</p>`
+    : `<p>コスト：${card.cost ?? "-"}　攻撃：${card.atk ?? "-"}　HP：${card.hp ?? "-"}</p>`
+}
+        <p>${card.text.replace(/\n/g, "<br>")}</p>
       `;
 
       div.onclick = () => {
@@ -138,12 +152,15 @@ function showCard(card) {
   document.getElementById("popupName").textContent = card.name;
 
   document.getElementById("popupInfo").textContent =
-    `${getFactionName(card)} / ${card.rarity} / ${getTypeName(card)}`;
+    `${getFactionName(card)} / ${getTypeName(card)}`;
 
   document.getElementById("popupStats").textContent =
-    `コスト:${card.cost ?? "-"} 攻撃:${card.atk ?? "-"} HP:${card.hp ?? "-"}`;
+    card.type === "King"
+  ? `HP:${card.hp}`
+  : `コスト:${card.cost ?? "-"} 攻撃:${card.atk ?? "-"} HP:${card.hp ?? "-"}`;
 
-  document.getElementById("popupText").textContent = card.text;
+  document.getElementById("popupText").innerHTML =
+  card.text.replace(/\n/g, "<br>");
 
   document.getElementById("cardPopup").style.display = "flex";
 }

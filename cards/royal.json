@@ -1,17 +1,5 @@
 [
   {
-    "id": "royal-king-001",
-    "name": "国王アルカイア",
-    "set": 1,
-    "faction": "Royal",
-    "subFaction": "Flag",
-    "race": "King",
-    "rarity": "King",
-    "type": "King",
-    "hp": 40,
-    "text": "鼓舞：応援するたび王の体力+1。王域：兵士トークンを出す。勅命5：味方ユニット1体をアンタップする。"
-  },
-  {
     "id": "royal-sr-001",
     "name": "王国兵・聖断執行官ミカエル",
     "set": 1,

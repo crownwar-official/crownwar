@@ -1,49 +1,26 @@
 [
   {
-    "id":"king_royal_001",
-    "name":"国王アルカイア",
-    "faction":"Royal",
-    "race":"ロイヤル・旗",
-    "rarity":"王",
-    "hp":40,
-
-    "allowedRaces":[
-      "ロイヤル",
-      "ロイヤル・旗",
-      "中立"
-    ],
-
-    "effects":[
-      {
-        "trigger":"onAllySupport",
-        "action":{
-          "type":"healKing",
-          "value":1
-        }
-      },
-      {
-        "trigger":"kingAura",
-        "action":{
-          "type":"enableSoldierTokenRule"
-        }
-      }
-    ],
-
-    "royalCommand":{
-      "name":"勅命",
-      "cost":5,
-      "actions":[
-        {
-          "type":"untap",
-          "target":"allyUnit",
-          "count":1
-        },
-        {
-          "type":"createToken",
-          "token":"soldier",
-          "count":1
-        }
-      ]
-    }
+    "id": "king-001",
+    "name": "国王アルカイア",
+    "search": "こくおうあるかいあ",
+    "set": 1,
+    "faction": "Royal",
+    "subFaction": "Flag",
+    "rarity": "King",
+    "type": "King",
+    "hp": 40,
+    "text": "鼓舞：応援するたび王の体力+1。\n\n王域：兵士トークンを出す。\n\n勅命5：味方ユニット1体をアンタップする。"
+  },
+  {
+    "id": "king-002",
+    "name": "冥王ノクティス",
+    "search": "めいおうのくてぃす",
+    "set": 1,
+    "faction": "Necro",
+    "subFaction": "Mei",
+    "rarity": "King",
+    "type": "King",
+    "hp": 40,
+    "text": "鼓舞：ユニットが破壊されるたび王の体力+1。\n\n王域：山札が0枚でも敗北しない。山札が0枚になった時、忠誠+10。\n\n勅命6：相手ユニット1体を破壊し、墓地からユニット1体を召喚する。"
   }
 ]

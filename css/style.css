@@ -285,3 +285,10 @@ h1 {
   border-top: 1px solid rgba(214,168,79,.45);
   margin: 30px 0;
 }
+
+.filters button.active {
+  background: gold !important;
+  color: black !important;
+  border-color: gold !important;
+  box-shadow: 0 0 12px gold !important;
+}
