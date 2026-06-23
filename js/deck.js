@@ -1,12 +1,21 @@
 let cards = [];
 
-fetch("cards/royal.json")
-  .then(res => res.json())
-  .then(data => {
-    cards = data;
+Promise.all([
+  fetch("cards/kings.json").then(res => res.json()),
+  fetch("cards/royal.json").then(res => res.json()),
+  fetch("cards/necro.json").then(res => res.json()),
+  fetch("cards/neutral.json").then(res => res.json())
+])
+.then(([kings, royal, necro, neutral]) => {
+  cards = [
+    ...kings,
+    ...royal,
+    ...necro,
+    ...neutral
+  ];
 
-    
-  });
+  renderKingList();
+});
 const kingList = document.getElementById("kingList");
 const deckCardList = document.getElementById("deckCardList");
 const deckList = document.getElementById("deckList");
@@ -83,11 +92,40 @@ function renderDeck() {
 function createCardDiv(card) {
   const div = document.createElement("div");
   div.className = "card";
+
   div.innerHTML = `
     <h3>${card.name}</h3>
-    <p>${card.faction} / ${card.rarity}</p>
-    <p>コスト：${card.cost}　攻撃：${card.atk}　HP：${card.hp}</p>
-    <p>${card.text}</p>
+    <p>${getFactionName(card)}</p>
+    ${
+      card.type === "King"
+      ? `<p>HP：${card.hp}</p>`
+      : `<p>コスト：${card.cost} 攻撃：${card.atk} HP：${card.hp}</p>`
+    }
   `;
+
   return div;
+}
+
+function getFactionName(card) {
+  if (card.faction === "Royal" && card.subFaction === "Flag") {
+    return "ロイヤル・旗";
+  }
+
+  if (card.faction === "Royal") {
+    return "ロイヤル";
+  }
+
+  if (card.faction === "Necro" && card.subFaction === "Mei") {
+    return "ネクロ・冥";
+  }
+
+  if (card.faction === "Necro") {
+    return "ネクロ";
+  }
+
+  if (card.faction === "Neutral") {
+    return "ニュートラル";
+  }
+
+  return card.faction;
 }

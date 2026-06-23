@@ -292,3 +292,21 @@ h1 {
   border-color: gold !important;
   box-shadow: 0 0 12px gold !important;
 }
+
+.menu-group{
+  margin-top:20px;
+  padding:20px;
+
+  border:2px solid #d6a84f;
+  border-radius:16px;
+
+  background:rgba(0,0,0,.35);
+}
+
+.menu-group h2{
+  margin-top:0;
+  margin-bottom:15px;
+
+  color:#ffd36a;
+  text-align:center;
+}

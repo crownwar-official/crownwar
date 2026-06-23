@@ -178,6 +178,7 @@ function toggleFilters() {
     area.style.display = "none";
   }
 }
+
 function setActiveButton(button) {
   const parent = button.parentElement;
 
