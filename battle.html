@@ -2,27 +2,49 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ネクサフロント 対戦</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nexa Front 対戦</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-
-<body>
-
-  <header class="page-header">
-    <h1>ネクサフロント 対戦</h1>
-    <a href="index.html">TOPへ戻る</a>
+<body class="battle-body">
+  <header class="battle-nav">
+    <a href="index.html" aria-label="トップへ戻る">←</a>
+    <div><span>NEXA FRONT</span><strong>ONLINE BATTLE</strong></div>
+    <a href="rule.html">RULE</a>
   </header>
+  <main class="battle-page">
+    <section id="lobby" class="battle-lobby">
+      <div class="lobby-mark">NF</div>
+      <p class="eyebrow">BATTLE TERMINAL</p>
+      <h1>戦場へ接続</h1>
+      <p class="lobby-copy">同じ合言葉を入力した2人が、同じ戦場に召集されます。</p>
+      <div class="lobby-form">
+        <label><span>PLAYER NAME</span><input id="playerName" maxlength="16" value="旅人"></label>
+        <label><span>ROOM CODE</span><input id="roomName" maxlength="30" placeholder="合言葉を入力"></label>
+      </div>
+      <div id="deckStatus" class="deck-status"></div>
+      <div class="lobby-actions"><a href="deck.html">デッキ編集</a><button id="joinButton">対戦に参加</button></div>
+    </section>
 
-  <main class="page">
-
-    <h2>対戦準備中</h2>
-
-    <p>
-      対戦システムは開発中です。
-    </p>
-
+    <section id="game" class="game-shell" hidden>
+      <div id="message" class="battle-message"></div>
+      <div class="opponent-bar"><div id="opponent"></div><div class="zone-counts">ENEMY SIDE</div></div>
+      <div class="battle-board">
+        <button id="enemyGrave" class="grave-zone enemy-grave"></button>
+        <button id="enemyKing" class="king-card enemy-king"></button>
+        <div class="field-label">ENEMY BACK</div><div id="enemyBack" class="battle-row enemy-row"></div>
+        <div class="field-label">ENEMY FRONT</div><div id="enemyFront" class="battle-row enemy-row"></div>
+        <div class="battle-divider"><span>FRONT LINE</span></div>
+        <div class="field-label">YOUR FRONT</div><div id="myFront" class="battle-row"></div>
+        <div class="field-label">YOUR BACK</div><div id="myBack" class="battle-row"></div>
+        <button id="myKing" class="king-card my-king"></button>
+        <button id="myGrave" class="grave-zone my-grave"></button>
+      </div>
+      <aside id="cardDetail" class="card-detail" hidden><button id="closeDetail" aria-label="閉じる">×</button><p id="detailType"></p><h2 id="detailName"></h2><div id="detailStats"></div><p id="detailText"></p></aside>
+      <div class="command-deck"><div id="hand" class="battle-hand"></div><div class="battle-actions"><button id="support" disabled>応援</button><button id="endTurn">ターン終了</button><button id="surrender">降参</button></div></div>
+    </section>
   </main>
-
+  <dialog id="graveDialog" class="grave-dialog"><button id="closeGrave" class="grave-close">×</button><h2 id="graveTitle">墓地</h2><div id="graveCards"></div></dialog>
+  <script src="/socket.io/socket.io.js"></script><script src="js/battle.js"></script>
 </body>
 </html>

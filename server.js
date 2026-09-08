@@ -1,74 +1,24 @@
-const express = require("express");
-const http = require("http");
-const fs = require("fs");
-const { Server } = require("socket.io");
-
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
-app.use(express.static("public"));
-
-const kings = JSON.parse(fs.readFileSync("./cards/kings.json", "utf8"));
-const royalCards = JSON.parse(fs.readFileSync("./cards/royal.json", "utf8"));
-const neutralCards = JSON.parse(fs.readFileSync("./cards/neutral.json", "utf8"));
-
-app.get("/api/kings", (req, res) => {
-  res.json(kings);
+const express=require("express"),http=require("http"),fs=require("fs"),path=require("path");
+const {Server}=require("socket.io"),app=express(),server=http.createServer(app),io=new Server(server);
+for(const dir of ["css","images","js","cards"]) app.use(`/${dir}`,express.static(path.join(__dirname,dir)));
+for(const page of ["index","admin","battle","cardlist","deck","login","rule"]) app.get(page==="index"?["/","/index.html"]:`/${page}.html`,(q,s)=>s.sendFile(path.join(__dirname,`${page}.html`)));
+const read=n=>JSON.parse(fs.readFileSync(path.join(__dirname,"cards",n),"utf8"));
+const kings=read("kings.json"),cards=[...read("royal.json"),...read("necro.json"),...read("neutral.json")];
+const kingById=new Map(kings.map(x=>[x.id,x])),cardById=new Map(cards.map(x=>[x.id,x]));
+app.get("/api/kings",(q,s)=>s.json(kings)); app.get("/api/cards",(q,s)=>s.json(cards));
+const rooms=new Map(),emptyBoard=()=>({front:[null,null,null],back:[null,null,null]});
+function shuffle(a){a=[...a];for(let i=a.length-1;i;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function draw(p,n){while(n--&&p.deck.length)p.hand.push(p.deck.shift())}
+function view(p,own){return{name:p.name,king:p.king,hp:p.hp,loyalty:p.loyalty,deckCount:p.deck.length,graveCount:p.grave.length,grave:p.grave,handCount:p.hand.length,hand:own?p.hand:undefined,board:p.board}}
+function emit(r,msg=""){r.players.forEach((p,i)=>io.to(p.socketId).emit("battleState",{roomName:r.name,started:r.started,you:i,turn:r.turn,winner:r.winner,message:msg,players:r.players.map((x,j)=>view(x,i===j))}))}
+function fail(s,m){s.emit("battleError",m)} function roomOf(s){return rooms.get(s.data.roomName)}
+io.on("connection",socket=>{
+ socket.on("joinBattle",(x={})=>{const roomName=String(x.roomName||"").trim().slice(0,30),king=kingById.get(x.kingId),deck=(Array.isArray(x.deckIds)?x.deckIds:[]).slice(0,60).map(id=>cardById.get(id)).filter(Boolean);if(!roomName)return fail(socket,"ルーム名を入力してください。");if(!king||!deck.length)return fail(socket,"先にデッキを保存してください。");let r=rooms.get(roomName);if(!r){r={name:roomName,players:[],started:false,turn:0,winner:null};rooms.set(roomName,r)}if(r.started||r.players.length>1)return fail(socket,"このルームは満員です。");socket.join(roomName);socket.data.roomName=roomName;r.players.push({socketId:socket.id,name:String(x.playerName||"旅人").trim().slice(0,16)||"旅人",king,hp:+king.hp||40,loyalty:0,deck:shuffle(deck),hand:[],grave:[],board:emptyBoard()});if(r.players.length===2){r.started=true;r.turn=Math.floor(Math.random()*2);r.players.forEach(p=>draw(p,5));r.players[r.turn].loyalty=2;emit(r,`${r.players[r.turn].name}の先攻で対戦開始！`)}else emit(r,"対戦相手を待っています…")});
+ socket.on("playCard",(x={})=>{const r=roomOf(socket);if(!r||!r.started||r.winner!==null)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(i!==r.turn)return fail(socket,"相手のターンです。");const p=r.players[i],card=p.hand[+x.handIndex];if(!card)return fail(socket,"カードがありません。");if(p.loyalty<+(card.cost||0))return fail(socket,"忠誠が足りません。");if(card.type==="Unit"){if(!["front","back"].includes(x.row)||![0,1,2].includes(+x.slot))return fail(socket,"召喚するマスを選んでください。");if(p.board[x.row][+x.slot])return fail(socket,"そのマスは使用中です。");p.board[x.row][+x.slot]={...card,currentHp:+card.hp||1,tapped:false}}else{if(/カードを[12]枚引く/.test(card.text||""))draw(p,card.text.includes("2枚")?2:1);const m=String(card.text||"").match(/忠誠\+(\d+)/);if(m)p.loyalty+=+m[1];p.grave.push(card)}p.loyalty-=+(card.cost||0);p.hand.splice(+x.handIndex,1);emit(r,`${p.name}が「${card.name}」を使用しました。`)});
+ socket.on("attack",(x={})=>{const r=roomOf(socket);if(!r||!r.started||r.winner!==null)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(i!==r.turn)return fail(socket,"相手のターンです。");const p=r.players[i],o=r.players[1-i],a=p.board[x.row]?.[+x.slot];if(!a||a.tapped||x.row!=="front")return fail(socket,"前列の未行動ユニットを選んでください。");if(x.king){if(o.board.front[1])return fail(socket,"中央前列を先に倒してください。");o.hp-=+a.atk||0;a.tapped=true;if(o.hp<=0)r.winner=i;return emit(r,`${a.name}が王に${a.atk||0}ダメージ！`)}const t=o.board[x.targetRow]?.[+x.targetSlot];if(!t)return fail(socket,"攻撃対象がいません。");if(x.targetRow==="back"&&o.board.front[+x.targetSlot])return fail(socket,"同じ列の前衛を先に倒してください。");t.currentHp-=+a.atk||0;a.currentHp-=+t.atk||0;a.tapped=true;if(t.currentHp<=0){o.grave.push(t);o.board[x.targetRow][+x.targetSlot]=null}if(a.currentHp<=0){p.grave.push(a);p.board[x.row][+x.slot]=null}emit(r,`${a.name}が${t.name}を攻撃しました。`)});
+ socket.on("support",({slot}={})=>{const r=roomOf(socket);if(!r||!r.started||r.winner!==null)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(i!==r.turn)return fail(socket,"相手のターンです。");const p=r.players[i],u=p.board.back[+slot];if(!u||u.tapped)return fail(socket,"後列の未行動ユニットを選んでください。");u.tapped=true;const effect=String(u.text||"").split("応援：")[1]?.split("。")[0]||"";const loyalty=effect.match(/忠誠\+(\d+)/),cardsDraw=effect.match(/カードを(\d+)枚引く/),heal=effect.match(/王の体力\+(\d+)/);if(loyalty)p.loyalty+=+loyalty[1];if(cardsDraw)draw(p,+cardsDraw[1]);if(heal)p.hp+=+heal[1];emit(r,`${u.name}が応援しました。${effect||""}`)});
+ socket.on("endTurn",()=>{const r=roomOf(socket);if(!r||!r.started||r.winner!==null)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(i!==r.turn)return fail(socket,"相手のターンです。");r.turn=1-r.turn;const p=r.players[r.turn];[...p.board.front,...p.board.back].filter(Boolean).forEach(u=>u.tapped=false);draw(p,2);p.loyalty+=2+[...p.board.front,...p.board.back].filter(Boolean).length;emit(r,`${p.name}のターンです。`)});
+ socket.on("surrender",()=>{const r=roomOf(socket);if(!r||r.winner!==null)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(i>=0){r.winner=1-i;emit(r,`${r.players[i].name}が降参しました。`)}});
+ socket.on("disconnect",()=>{const r=roomOf(socket);if(!r)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(r.started&&r.winner===null){r.winner=i===0?1:0;emit(r,"相手が退出しました。")}else if(!r.started){r.players=r.players.filter(p=>p.socketId!==socket.id);if(!r.players.length)rooms.delete(r.name)}})
 });
-
-app.get("/api/royal", (req, res) => {
-  res.json(royalCards);
-});
-
-app.get("/api/cards", (req, res) => {
-  res.json([...royalCards, ...neutralCards]);
-});
-
-const rooms = {};
-
-io.on("connection", (socket) => {
-  socket.on("joinRoom", (roomName) => {
-    if (!roomName) return;
-
-    if (!rooms[roomName]) {
-      rooms[roomName] = [];
-    }
-
-    if (rooms[roomName].length >= 2) {
-      socket.emit("roomError", "このルームは満員です。");
-      return;
-    }
-
-    rooms[roomName].push(socket.id);
-    socket.join(roomName);
-
-    socket.emit("playerNumber", rooms[roomName].length - 1);
-
-    io.to(roomName).emit("roomInfo", {
-      roomName: roomName,
-      playerCount: rooms[roomName].length
-    });
-
-    if (rooms[roomName].length === 2) {
-      const firstPlayer = Math.floor(Math.random() * 2);
-
-      io.to(roomName).emit("startBattle", {
-        firstPlayer: firstPlayer,
-        startingHand: 5
-      });
-    }
-  });
-
-  socket.on("disconnect", () => {
-    for (const roomName in rooms) {
-      rooms[roomName] = rooms[roomName].filter(
-        (id) => id !== socket.id
-      );
-    }
-  });
-});
-
-server.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
-});
+server.listen(3000,()=>console.log("Server running on http://localhost:3000"));

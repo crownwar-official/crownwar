@@ -85,9 +85,37 @@ function renderDeck() {
     const div = document.createElement("div");
     div.className = "deck-item";
     div.innerHTML = `<span>${card.name}</span><span>×${counts[id]}</span>`;
+    div.title = "クリックで1枚外す";
+    div.onclick = () => {
+      const index = deck.findIndex(c => c.id === id);
+      if (index >= 0) deck.splice(index, 1);
+      renderDeck();
+    };
     deckList.appendChild(div);
   });
 }
+
+document.getElementById("autoDeck").onclick = () => {
+  if (!selectedKing) return alert("先に王を選んでください。");
+  const pool = cards.filter(card => card.type !== "King" && (card.faction === selectedKing.faction || card.faction === "Neutral"));
+  deck = [];
+  let cursor = 0;
+  while (deck.length < 60 && pool.length) {
+    const card = pool[cursor % pool.length];
+    const limit = card.rarity === "SR" ? 3 : 6;
+    if (deck.filter(c => c.id === card.id).length < limit) deck.push(card);
+    cursor++;
+    if (cursor > 10000) break;
+  }
+  renderDeck();
+};
+
+document.getElementById("saveDeck").onclick = () => {
+  if (!selectedKing) return alert("王を選んでください。");
+  if (deck.length !== 60) return alert(`デッキを60枚にしてください（現在${deck.length}枚）。`);
+  localStorage.setItem("nexaFrontDeck", JSON.stringify({ king: selectedKing, cards: deck }));
+  document.getElementById("saveStatus").innerHTML = '保存しました。<a href="battle.html">対戦へ</a>';
+};
 
 function createCardDiv(card) {
   const div = document.createElement("div");

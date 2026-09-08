@@ -12,25 +12,37 @@
 
   <button class="hamburger" onclick="toggleMenu()">☰</button>
 
-  <div id="sideMenu" class="side-menu">
-    <a href="login.html">ログイン</a>
-    <a href="deck.html">デッキ作成</a>
-    <a href="battle.html">対戦</a>
-    <a href="cardlist.html">カードリスト</a>
-    <a href="rule.html">ルールブック</a>
-  </div>
+<div id="overlay" class="menu-overlay" onclick="toggleMenu()"></div>
+
+<div id="sideMenu" class="side-menu">
+
+<h2>Nexa Front</h2>
+<small>Official Website</small>
+
+<div class="menu-title">HOME</div>
+<a href="index.html">🏠 ホーム</a>
+
+<div class="menu-title">GAME</div>
+<a href="login.html">🔑 ログイン</a>
+<a href="battle.html">⚔ 対戦</a>
+<a href="deck.html">🃏 デッキ制作</a>
+
+<div class="menu-title">DATABASE</div>
+<a href="cardlist.html">📖 カードリスト</a>
+<a href="rule.html">📚 ルールブック</a>
+
+<div class="menu-title">VERSION</div>
+
+<p>Version 0.1 Alpha</p>
+
+</div>
 
   <main class="top">
 
     <h1>Nexa Front</h1>
-    <p class="subtitle">ネクサフロント</p>
+    <p class="subtitle">Nexa Front</p>
 
-    <h2>ゲーム概要</h2>
 
-    <p>
-      Nexa Frontは王を中心として戦う
-      オリジナル戦略カードゲームです。
-    </p>
 
     <p>
       ユニットを展開し、
@@ -39,27 +51,12 @@
     </p>
 
     <div class="menu-group">
-      <h2>お知らせ</h2>
+  <h2>お知らせ</h2>
 
-      <p>
-        <b>2026/06/24</b><br>
-        公式サイト公開
-      </p>
-
-      <p>
-        <b>2026/06/24</b><br>
-        ネクロ実装
-      </p>
-
-      <p>
-        <b>2026/06/24</b><br>
-        ニュートラル実装
-      </p>
-    </div>
-
-    <p class="version">
-      Version 0.1 Alpha
-    </p>
+  <div id="newsList">
+    読み込み中...
+  </div>
+</div>
 
   </main>
 
@@ -69,8 +66,15 @@
         .getElementById("sideMenu")
         .classList
         .toggle("open");
+
+      document
+        .getElementById("overlay")
+        .classList
+        .toggle("show");
     }
   </script>
+
+<script type="module" src="js/news.js"></script>
 
 </body>
 </html>
