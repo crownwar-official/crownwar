@@ -21,4 +21,5 @@ io.on("connection",socket=>{
  socket.on("surrender",()=>{const r=roomOf(socket);if(!r||r.winner!==null)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(i>=0){r.winner=1-i;emit(r,`${r.players[i].name}が降参しました。`)}});
  socket.on("disconnect",()=>{const r=roomOf(socket);if(!r)return;const i=r.players.findIndex(p=>p.socketId===socket.id);if(r.started&&r.winner===null){r.winner=i===0?1:0;emit(r,"相手が退出しました。")}else if(!r.started){r.players=r.players.filter(p=>p.socketId!==socket.id);if(!r.players.length)rooms.delete(r.name)}})
 });
-server.listen(3000,()=>console.log("Server running on http://localhost:3000"));
+const port=Number(process.env.PORT)||3000;
+server.listen(port,()=>console.log(`Server running on port ${port}`));
